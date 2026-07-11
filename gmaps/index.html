@@ -258,7 +258,7 @@ function setGType(t){
 }
 window.__initGMap = function(){
   const s=document.createElement('script');
-  s.src='https://unpkg.com/leaflet.gridlayer.googlemutant@0.14.0/dist/Leaflet.GoogleMutant.js';
+  s.src='https://cdn.jsdelivr.net/npm/leaflet.gridlayer.googlemutant@0.14.0/dist/Leaflet.GoogleMutant.min.js';
   s.onload=addGoogle; s.onerror=addOSM;
   document.head.appendChild(s);
 };
