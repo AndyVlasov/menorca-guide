@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Менорка — гид по местам · 3 дня</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+:root{
+  --ink:#23303a; --muted:#8a7e6e; --sand:#f4ede2; --card:#fbf7f0;
+  --teal:#0e6e78; --terra:#c65b3c; --azure:#1b6c9c; --olive:#6e8b3d;
+  --line:#e7ddcd;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  color:var(--ink);background:#fff;line-height:1.5;-webkit-font-smoothing:antialiased}
+a{color:var(--azure);text-decoration:none}
+img{display:block;max-width:100%}
+
+/* Header */
+header.top{background:linear-gradient(135deg,#0e6e78,#12808c);color:#fff;padding:26px 18px 18px;
+  position:relative;overflow:hidden}
+header.top h1{margin:0;font-size:30px;letter-spacing:2px;font-weight:800}
+header.top p{margin:6px 0 0;opacity:.9;font-size:14px}
+.dots{position:absolute;right:18px;top:22px;display:flex;gap:8px}
+.dots span{width:12px;height:12px;border-radius:50%}
+.d1{background:var(--terra)} .d2{background:var(--azure)} .d3{background:var(--olive)}
+
+/* Filter bar */
+.filters{position:sticky;top:0;z-index:1200;background:#fff;border-bottom:1px solid var(--line);
+  padding:10px 14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.chip{border:1.5px solid var(--line);background:#fff;color:var(--ink);border-radius:20px;
+  padding:6px 14px;font-size:13px;font-weight:600;cursor:pointer;transition:.15s}
+.chip:hover{border-color:var(--teal)}
+.chip.active{background:var(--teal);color:#fff;border-color:var(--teal)}
+.chip.c1.active{background:var(--terra);border-color:var(--terra)}
+.chip.c2.active{background:var(--azure);border-color:var(--azure)}
+.chip.c3.active{background:var(--olive);border-color:var(--olive)}
+
+/* Map */
+#map{height:52vh;min-height:340px;width:100%;z-index:1}
+.legend-note{font-size:12px;color:var(--muted);padding:8px 16px;background:var(--sand)}
+
+/* Marker pins */
+.pin{width:26px;height:26px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);
+  border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center}
+.pin span{transform:rotate(45deg);color:#fff;font-weight:700;font-size:12px}
+
+/* Content */
+main{max-width:1080px;margin:0 auto;padding:0 14px 60px}
+.day{scroll-margin-top:70px}
+.hero{position:relative;border-radius:14px;overflow:hidden;margin:26px 0 14px;
+  min-height:150px;background:var(--sand)}
+.hero img{width:100%;height:190px;object-fit:cover}
+.hero .cap{position:absolute;left:0;bottom:0;right:0;
+  background:linear-gradient(transparent,rgba(0,0,0,.62));color:#fff;padding:26px 16px 12px}
+.hero .cap h2{margin:0;font-size:22px;font-weight:800}
+.hero .cap p{margin:3px 0 0;font-size:13px;opacity:.92}
+.hero .tag{position:absolute;left:12px;top:12px;color:#fff;font-weight:700;font-size:12px;
+  padding:4px 10px;border-radius:20px}
+.hero.b1 .tag{background:var(--terra)} .hero.b2 .tag{background:var(--azure)} .hero.b3 .tag{background:var(--olive)}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px}
+.card{background:var(--card);border-radius:12px;overflow:hidden;border:1px solid var(--line);
+  display:flex;flex-direction:column;cursor:pointer;transition:.15s}
+.card:hover{box-shadow:0 6px 18px rgba(20,40,50,.10);transform:translateY(-2px)}
+.card .ph{position:relative;height:150px;display:flex;align-items:center;justify-content:center;color:#fff}
+.card .ph img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+.card .ph .fallback{font-size:40px;font-weight:800;opacity:.55}
+.card.k1 .ph{background:linear-gradient(135deg,#c65b3c,#e08a6f)}
+.card.k2 .ph{background:linear-gradient(135deg,#1b6c9c,#4f9bc7)}
+.card.k3 .ph{background:linear-gradient(135deg,#6e8b3d,#9cb56a)}
+.card .num{position:absolute;left:10px;top:10px;width:26px;height:26px;border-radius:50%;
+  color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;font-size:13px;
+  border:2px solid rgba(255,255,255,.85);z-index:2}
+.card.k1 .num{background:var(--terra)} .card.k2 .num{background:var(--azure)} .card.k3 .num{background:var(--olive)}
+.body{padding:12px 14px 14px}
+.body h3{margin:0 0 2px;font-size:16px}
+.meta{color:var(--muted);font-size:12px;margin-bottom:8px}
+.desc{font-size:13.5px;margin:0 0 8px}
+.addr{font-size:12.5px;margin:0 0 3px}
+.addr b{color:var(--ink)}
+.coord{font-size:11.5px;color:var(--muted);margin:0 0 10px}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.btn{font-size:12.5px;font-weight:700;padding:7px 11px;border-radius:8px;border:1.5px solid var(--azure);
+  color:var(--azure);background:#fff}
+.btn.primary{background:var(--azure);color:#fff}
+.btn:hover{filter:brightness(1.05)}
+.rec{font-size:12.5px;color:var(--teal);font-style:italic;margin:6px 0 0}
+.flag{font-size:12.5px;color:#b05a00;font-style:italic;margin:6px 0 0}
+footer{max-width:1080px;margin:0 auto;padding:22px 16px 40px;color:var(--muted);font-size:12px;border-top:1px solid var(--line)}
+.hidden{display:none!important}
+@media(max-width:520px){#map{height:44vh} .hero img{height:150px}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
+  <h1>МЕНОРКА</h1>
+  <p>Гид по местам · 3 дня · Маон · Сьютаделла · окрестности</p>
+</header>
+
+<div class="filters">
+  <button class="chip active" data-f="all">Все</button>
+  <button class="chip c1" data-f="1">День 1 · Маон</button>
+  <button class="chip c2" data-f="2">День 2 · Сьютаделла</button>
+  <button class="chip c3" data-f="3">День 3 · Окрестности</button>
+</div>
+
+<div id="map"></div>
+<div class="legend-note">
+  🔴 День 1 · 🔵 День 2 · 🟢 День 3 — нажмите на метку или карточку.
+  <button id="satBtn" style="display:none;margin-left:8px;border:1px solid var(--line);background:#fff;border-radius:14px;padding:3px 10px;font-size:12px;font-weight:600;cursor:pointer">Спутник</button>
+  <span id="baseNote" style="margin-left:6px"></span>
+</div>
+
+<main id="content"></main>
+
+<footer>
+  Фотографии: Wikimedia Commons (свободные лицензии CC BY-SA), где доступны; остальные — по ссылке «Фото».
+  Карта — Google Maps (при вставленном ключе) или OpenStreetMap по умолчанию. Ссылки «Google Maps» открывают страницу места с фото, отзывами и маршрутом.
+  Метки ★ — рекомендации изданий/блогеров, ⚠ — точки с неподтверждённым адресом.
+</footer>
+
+<script>
+const FP = (name,w)=>`https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(name)}?width=${w}`;
+
+const HEROES = {
+  1:{img:FP("Mahon Hafen.jpg",1200), title:"День 1 · Маон (Mahón)",
+     sub:"Точки 1–5 в старом городе (2–10 мин пешком). Bodega Binifadet (№6) — в ~3,8 км к югу."},
+  2:{img:FP("Minorque Ciutadella Port Commerce - panoramio.jpg",1200), title:"День 2 · Сьютаделла (Ciutadella)",
+     sub:"Все точки в компактном старом городе, между любыми из них ~5 минут пешком."},
+  3:{img:FP("G1 Cala Galdana des del mirador des Riu.JPG",1200), title:"День 3 · Окрестности",
+     sub:"Точки разбросаны по острову — планируйте маршрут на автомобиле."},
+};
+
+const PLACES = [
+ {d:1,n:1,name:"Iglesia de Santa Maria",meta:"Церковь · рейтинг 4.3 · 15:30–19:30",
+  addr:"Plaça de la Constitució, 07701 Maó",lat:39.889420,lon:4.264704,pid:"ChIJAc_udpqHlRIRYYCitWS7OuE",
+  body:"Главная церковь Маона на центральной площади, знаменитая огромным органом XIX века (более 3000 труб). Спокойный барочный интерьер, вход ~2 €.",
+  rec:"Советуют попасть на ежедневный органный мини-концерт (обычно в 13:00)."},
+ {d:1,n:2,name:"Plaça de la Conquista",meta:"Историческая площадь",
+  addr:"Plaça de la Conquesta, 07701 Maó",lat:39.889540,lon:4.265092,pid:"ChIJK1Blb5qHlRIRLzW-mnQECWY",
+  body:"Площадь за церковью с памятником Альфонсо III и видовыми балконами над гаванью. Короткая фотопауза и спуск к порту."},
+ {d:1,n:3,name:"Passeig de la Explanada",meta:"Бульвар · рейтинг 4.2",
+  addr:"Av. de Vives Llull, 07703 Maó",lat:39.887228,lon:4.258988,pid:"ChIJI0P37KWHlRIRPi6lDDwywB0",
+  body:"Центр пешеходной жизни Маона: кафе, магазины, рынок по вторникам и субботам. Место для завтрака или вечернего аперитива."},
+ {d:1,n:4,name:"Mercat des Peix (рыбный рынок)",meta:"Гастро-рынок · рейтинг 4.1 · вс закрыто",
+  addr:"Pl. d'Espanya, 1, 07701 Maó",lat:39.888841,lon:4.265511,pid:"ChIJXZt-P5qHlRIRLYNhifqXyUI",
+  body:"Старый рыбный рынок, ставший модным гастро-двориком с тапас-барами, вином и джином. Идеально «поесть по чуть-чуть» с видом на гавань.",
+  photo:FP("Mahon Hafen.jpg",700)},
+ {d:1,n:5,name:"Ses Culleres",meta:"Ресторан · рейтинг 4.3 · +34 971 35 27 11",
+  addr:"C. Pont des Castell, 6, 07701 Maó",lat:39.890166,lon:4.265089,pid:"ChIJPTGB5qyHlRIR1uoBtZnEZOs",
+  body:"Ресторан с террасой над портом. Тапас «микс-энд-матч», фирменные каннеллони. Бронируйте столик заранее ради видов."},
+ {d:1,n:6,name:"Bodega Binifadet",meta:"Винодельня · рейтинг 4.4 · 11:00–23:00 · ~3,8 км южнее",
+  addr:"Ctra. Sant Lluís–Es Castell, km 0,5, 07710",lat:39.854606,lon:4.262656,pid:"ChIJbcfwyU-GlRIRzV1zC6wt4rI",
+  body:"Самая известная винодельня острова: экскурсии по виноградникам и погребу, дегустации и ресторан среди лоз. Обязательное гастро-впечатление Менорки."},
+
+ {d:2,n:1,name:"Catedral de Santa Maria",meta:"Собор · рейтинг 4.4",
+  addr:"Plaça de la Catedral, s/n, 07760 Ciutadella",lat:40.001683,lon:3.837487,pid:"ChIJPQFOswkEvhIRNpX-ZNfHFbg",
+  body:"Готический собор XIV века на месте бывшей мечети. Архитектура, витражи, историческая экспозиция. Билет часто общий с Епархиальным музеем.",
+  photo:FP("Minorca 0054.JPG",700)},
+ {d:2,n:2,name:"Plaça des Born",meta:"Главная площадь старого города",
+  addr:"Plaça des Born, 07760 Ciutadella",lat:40.001020,lon:3.836512,pid:"ChIJRcA1FggEvhIRQS7wUpI4wAw",
+  body:"Парадная площадь на месте крепости: обелиск, ратуша, дворцы знати и панорама на порт с края. Сердце вечерних прогулок.",
+  photo:FP("Minorque Ciutadella Place Born Ayuntamiento Obelisque 21062015 - panoramio.jpg",700)},
+ {d:2,n:3,name:"Palacio de Olivar",meta:"Дом-музей · рейтинг 4.4 · ~4 € · 10:30–17:30",
+  addr:"Plaça de la Catedral, 07760 Ciutadella",lat:40.001532,lon:3.837266,pid:"ChIJRSuESwgEvhIR-4fi9pJcpbM",
+  body:"Аристократический особняк-музей у собора: интерьеры, мебель, наряды старинной семьи. Аудиогид по QR. Визит ~30 мин."},
+ {d:2,n:4,name:"Port de Ciutadella",meta:"Старый порт · рейтинг 4.6",
+  addr:"Passeig des Moll, s/n, 07760 Ciutadella",lat:40.001686,lon:3.835570,pid:"ChIJbfTHdggEvhIRmx97NoU7998",
+  body:"Живописный старый порт — канал, лодки, рестораны у воды. Особенно хорош на закате и во время вечернего ремесленного рынка.",
+  photo:FP("Minorque Ciutadella Port Commerce - panoramio.jpg",700)},
+ {d:2,n:5,name:"Museu Diocesà",meta:"Музей · рейтинг 4.8 · 10:00–14:30 · вс закрыто",
+  addr:"Carrer des Seminari, 7, 07760 Ciutadella",lat:40.001333,lon:3.839000,pid:"ChIJk97dvQkEvhIRTO8ZI1MAeK0",
+  body:"Музей в бывшем монастыре с потрясающим клуатром — одна из самых высоко оценённых точек города. Билет обычно включает собор.",
+  rec:"Хвалят экскурсию гида Жозепа по истории Сьютаделлы."},
+ {d:2,n:6,name:"Restaurant Saula",meta:"Ресторан · старый город",
+  addr:"07760 Ciutadella (адрес уточнить)",lat:40.0019,lon:3.8383,pid:"",
+  body:"Небольшое заведение в историческом центре Сьютаделлы.",
+  flag:"Координаты приблизительные — точка не подтвердилась в открытых картах."},
+ {d:2,n:7,name:"Bòria Hotel Restaurant",meta:"Ресторан при отеле · центр",
+  addr:"07760 Ciutadella (адрес уточнить)",lat:40.0017,lon:3.8379,pid:"",
+  body:"Ресторан при бутик-отеле в центре.",
+  flag:"Координаты приблизительные — данные не подтвердились."},
+ {d:2,n:8,name:"Palli Pallà",meta:"Заведение · старый город",
+  addr:"07760 Ciutadella (адрес уточнить)",lat:40.0021,lon:3.8388,pid:"",
+  body:"Заведение в историческом центре Сьютаделлы.",
+  flag:"Координаты приблизительные — уточните название и адрес."},
+ {d:2,n:9,name:"Sa Schema",meta:"Заведение · старый город",
+  addr:"07760 Ciutadella (адрес уточнить)",lat:40.0015,lon:3.8383,pid:"",
+  body:"Заведение в историческом центре Сьютаделлы.",
+  flag:"Координаты приблизительные — уточните название и адрес."},
+
+ {d:3,n:1,name:"Naveta des Tudons",meta:"Мегалит · рейтинг 4.4 · ~2 € (пн/вт часто бесплатно)",
+  addr:"Me-1, km 40, 07760 Ciutadella",lat:40.003086,lon:3.891699,pid:"ChIJAQAvpqYEvhIR2kw3BKvuU5E",
+  body:"Древнейшая целая мегалитическая гробница Балеар (более 3000 лет) в форме перевёрнутой лодки — ключевой памятник острова. ~5 минут пешком от парковки.",
+  photo:FP("Naveta des Tudons 2011.JPG",700)},
+ {d:3,n:2,name:"Santa Mariana",meta:"Гастро-ресторан · рейтинг 4.8 · +34 669 05 42 41 · у Алайора",
+  addr:"Camí de Loreto, 07730 Alaior",lat:39.925443,lon:4.164291,pid:"ChIJOewIHEEnvhIRNHJMyUxbyUk",
+  body:"Ресторан при агротуризме в старинном каменном доме: свой огород, оливы, дегустационные меню. Шеф Хосе Мария Боррас. Находится у Алайора, а не Сант-Льюиса.",
+  rec:"В гиде Michelin (рекомендованный); о нём писали El Español (Cocinillas) и блог Terrazeo."},
+ {d:3,n:3,name:"Sa Llagosta",meta:"Морепродукты · рейтинг 4.4 · Форнельс · чт закрыто",
+  addr:"Carrer de Gabriel Gelabert, 12, 07748 Fornells",lat:40.055591,lon:4.131205,pid:"ChIJB7I-ifYjvhIRfuGuRsSJP7M",
+  body:"«Храм лобстера» в Форнельсе: знаменитая caldereta de llagosta и до десятка блюд из лобстера. Терраса у гавани, дорого — бронируйте заранее. Шеф Давид Кока.",
+  rec:"Michelin, The Infatuation, критик Vedat Milor (Gastromondiale), MenorcanGuide."},
+ {d:3,n:4,name:"Es Moll",meta:"Ресторан · побережье",
+  addr:"Es Grau (в Форнельсе — уточнить)",lat:40.0548,lon:4.1300,pid:"",
+  body:"Эс-Грау — тихая деревушка у природного парка Альбуфера с морепродуктами и видом на бухту.",
+  flag:"В картах «Es Moll» — в Эс-Грау, а не в Форнельсе. Уточните название/адрес."},
+ {d:3,n:5,name:"Cala Galdana",meta:"Пляж/бухта · рейтинг 4.5",
+  addr:"Travessia Cala Galdana, 07750 Ferreries",lat:39.938234,lon:3.959826,pid:"ChIJKa1CDa8dvhIRxFMuf-k3zLA",
+  body:"Красивая удобная бухта юга: песчаный пляж, бирюзовая вода, кафе, лежаки, парковка рядом. Приезжайте до 9–10 утра.",
+  photo:FP("G1 Cala Galdana des del mirador des Riu.JPG",700)},
+ {d:3,n:6,name:"Cala Mitjana",meta:"Дикая бухта · рейтинг 4.5",
+  addr:"Cala Mitjana, 07750 Ferreries",lat:39.934369,lon:3.972394,pid:"ChIJgcnArbgdvhIRDdl9DBZuVeM",
+  body:"Дикая бухта с кристальной водой и скалами для прыжков, ~25–30 мин пешком от парковки. Инфраструктуры нет — берите воду и еду.",
+  photo:FP("Cala Mitjana.jpg",700)},
+];
+
+const DAYCOL = {1:"#c65b3c",2:"#1b6c9c",3:"#6e8b3d"};
+const gmaps = p => p.pid
+  ? `https://www.google.com/maps/search/?api=1&query=${p.lat}%2C${p.lon}&query_place_id=${p.pid}`
+  : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.name+' Menorca')}`;
+const gphotos = p => `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(p.name+' Menorca')}`;
+
+// ---- Map base layer ----
+// Чтобы включить Google Maps, вставьте сюда ваш ключ Google Maps JavaScript API.
+// Пусто = карта работает на OpenStreetMap.
+const GOOGLE_KEY = "";
+
+const map = L.map('map',{scrollWheelZoom:false}).setView([39.97,4.03],10);
+let gLayer=null, gType='roadmap';
+
+function addOSM(){
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    {maxZoom:19, attribution:'© OpenStreetMap'}).addTo(map);
+  document.getElementById('baseNote').textContent =
+    'Карта: OpenStreetMap. Вставьте ключ в GOOGLE_KEY, чтобы включить Google Maps.';
+}
+function addGoogle(){
+  try{
+    gLayer = L.gridLayer.googleMutant({type:gType, maxZoom:20}).addTo(map);
+    document.getElementById('baseNote').textContent = 'Карта: Google Maps.';
+    const b=document.getElementById('satBtn'); b.style.display='inline-block';
+    b.onclick=function(){
+      if(gType==='roadmap'){ setGType('hybrid'); this.textContent='Карта'; }
+      else { setGType('roadmap'); this.textContent='Спутник'; }
+    };
+  }catch(e){ addOSM(); }
+}
+function setGType(t){
+  gType=t;
+  if(gLayer){ map.removeLayer(gLayer); }
+  gLayer = L.gridLayer.googleMutant({type:t, maxZoom:20}).addTo(map);
+}
+window.__initGMap = function(){
+  const s=document.createElement('script');
+  s.src='https://unpkg.com/leaflet.gridlayer.googlemutant@0.14.0/dist/Leaflet.GoogleMutant.js';
+  s.onload=addGoogle; s.onerror=addOSM;
+  document.head.appendChild(s);
+};
+if(GOOGLE_KEY){
+  const g=document.createElement('script');
+  g.src='https://maps.googleapis.com/maps/api/js?key='+GOOGLE_KEY+'&callback=__initGMap';
+  g.async=true; g.onerror=addOSM;
+  document.head.appendChild(g);
+} else {
+  addOSM();
+}
+
+const markers = {};
+const bounds = [];
+PLACES.forEach(p=>{
+  const icon = L.divIcon({html:`<div class="pin" style="background:${DAYCOL[p.d]}"><span>${p.n}</span></div>`,
+    className:'', iconSize:[26,26], iconAnchor:[13,26], popupAnchor:[0,-26]});
+  const m = L.marker([p.lat,p.lon],{icon}).addTo(map);
+  m.bindPopup(`<b>${p.d}.${p.n} ${p.name}</b><br>${p.meta}<br>
+    <a href="${gmaps(p)}" target="_blank">Открыть в Google Maps →</a>`);
+  markers[p.d+'-'+p.n]=m; m._day=p.d;
+  bounds.push([p.lat,p.lon]);
+});
+map.fitBounds(bounds,{padding:[30,30]});
+
+// ---- Cards ----
+const content = document.getElementById('content');
+[1,2,3].forEach(d=>{
+  const h = HEROES[d];
+  const sec = document.createElement('section');
+  sec.className='day'; sec.dataset.day=d; sec.id='day'+d;
+  sec.innerHTML = `
+    <div class="hero b${d}">
+      <img src="${h.img}" alt="" onerror="this.style.display='none'">
+      <span class="tag">День ${d}</span>
+      <div class="cap"><h2>${h.title}</h2><p>${h.sub}</p></div>
+    </div>
+    <div class="grid" id="grid${d}"></div>`;
+  content.appendChild(sec);
+  const grid = sec.querySelector('#grid'+d);
+  PLACES.filter(p=>p.d===d).forEach(p=>{
+    const el = document.createElement('div');
+    el.className='card k'+d; el.dataset.day=d;
+    const photo = p.photo
+      ? `<img src="${p.photo}" alt="${p.name}" loading="lazy" onerror="this.style.display='none'">`
+      : `<div class="fallback">${p.n}</div>`;
+    el.innerHTML = `
+      <div class="ph"><span class="num">${p.n}</span>${photo}</div>
+      <div class="body">
+        <h3>${p.name}</h3>
+        <div class="meta">${p.meta}</div>
+        <p class="desc">${p.body}</p>
+        <p class="addr"><b>Адрес:</b> ${p.addr}</p>
+        <p class="coord">${p.lat.toFixed(6)}, ${p.lon.toFixed(6)}</p>
+        <div class="btns">
+          <a class="btn primary" href="${gmaps(p)}" target="_blank" onclick="event.stopPropagation()">Google Maps</a>
+          <a class="btn" href="${gphotos(p)}" target="_blank" onclick="event.stopPropagation()">Фото</a>
+        </div>
+        ${p.rec?`<p class="rec">★ Советуют: ${p.rec}</p>`:''}
+        ${p.flag?`<p class="flag">⚠ ${p.flag}</p>`:''}
+      </div>`;
+    el.addEventListener('click',()=>{
+      map.setView([p.lat,p.lon],16,{animate:true});
+      markers[p.d+'-'+p.n].openPopup();
+      document.getElementById('map').scrollIntoView({behavior:'smooth',block:'start'});
+    });
+    grid.appendChild(el);
+  });
+});
+
+// ---- Filter ----
+document.querySelectorAll('.chip').forEach(ch=>{
+  ch.addEventListener('click',()=>{
+    document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+    ch.classList.add('active');
+    const f = ch.dataset.f;
+    document.querySelectorAll('.day').forEach(s=>{
+      s.classList.toggle('hidden', f!=='all' && s.dataset.day!==f);
+    });
+    const nb=[];
+    Object.values(markers).forEach(m=>{
+      const show = (f==='all'|| String(m._day)===f);
+      if(show){ m.addTo(map); nb.push(m.getLatLng()); } else { map.removeLayer(m); }
+    });
+    if(nb.length) map.fitBounds(nb,{padding:[30,30]});
+  });
+});
+</script>
+</body>
+</html>
