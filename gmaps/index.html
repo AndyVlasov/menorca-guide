@@ -9,7 +9,7 @@
 <style>
 :root{
   --ink:#23303a; --muted:#8a7e6e; --sand:#f4ede2; --card:#fbf7f0;
-  --teal:#0e6e78; --terra:#c65b3c; --azure:#1b6c9c; --olive:#6e8b3d;
+  --teal:#0e6e78; --terra:#c65b3c; --azure:#1b6c9c; --olive:#6e8b3d; --plum:#7e57a3; --gold:#c98a2b;
   --line:#e7ddcd;
 }
 *{box-sizing:border-box}
@@ -38,6 +38,8 @@ header.top p{margin:6px 0 0;opacity:.9;font-size:14px}
 .chip.c1.active{background:var(--terra);border-color:var(--terra)}
 .chip.c2.active{background:var(--azure);border-color:var(--azure)}
 .chip.c3.active{background:var(--olive);border-color:var(--olive)}
+.chip.c4.active{background:var(--plum);border-color:var(--plum)}
+.chip.c5.active{background:var(--gold);border-color:var(--gold)}
 
 /* Map */
 #map{height:52vh;min-height:340px;width:100%;z-index:1}
@@ -60,7 +62,9 @@ main{max-width:1080px;margin:0 auto;padding:0 14px 60px}
 .hero .cap p{margin:3px 0 0;font-size:13px;opacity:.92}
 .hero .tag{position:absolute;left:12px;top:12px;color:#fff;font-weight:700;font-size:12px;
   padding:4px 10px;border-radius:20px}
-.hero.b1 .tag{background:var(--terra)} .hero.b2 .tag{background:var(--azure)} .hero.b3 .tag{background:var(--olive)}
+.hero.b1 .tag{background:var(--terra)} .hero.b2 .tag{background:var(--azure)} .hero.b3 .tag{background:var(--olive)} .hero.b4 .tag{background:var(--plum)} .hero.b5 .tag{background:var(--gold)}
+.hero.b4{background:linear-gradient(135deg,#7e57a3,#a98cc7)}
+.hero.b5{background:linear-gradient(135deg,#c98a2b,#e0b46a)}
 
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px}
 .card{background:var(--card);border-radius:12px;overflow:hidden;border:1px solid var(--line);
@@ -72,10 +76,12 @@ main{max-width:1080px;margin:0 auto;padding:0 14px 60px}
 .card.k1 .ph{background:linear-gradient(135deg,#c65b3c,#e08a6f)}
 .card.k2 .ph{background:linear-gradient(135deg,#1b6c9c,#4f9bc7)}
 .card.k3 .ph{background:linear-gradient(135deg,#6e8b3d,#9cb56a)}
+.card.k4 .ph{background:linear-gradient(135deg,#7e57a3,#a98cc7)}
+.card.k5 .ph{background:linear-gradient(135deg,#c98a2b,#e0b46a)}
 .card .num{position:absolute;left:10px;top:10px;width:26px;height:26px;border-radius:50%;
   color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;font-size:13px;
   border:2px solid rgba(255,255,255,.85);z-index:2}
-.card.k1 .num{background:var(--terra)} .card.k2 .num{background:var(--azure)} .card.k3 .num{background:var(--olive)}
+.card.k1 .num{background:var(--terra)} .card.k2 .num{background:var(--azure)} .card.k3 .num{background:var(--olive)} .card.k4 .num{background:var(--plum)} .card.k5 .num{background:var(--gold)}
 .body{padding:12px 14px 14px}
 .body h3{margin:0 0 2px;font-size:16px}
 .meta{color:var(--muted);font-size:12px;margin-bottom:8px}
@@ -107,11 +113,13 @@ footer{max-width:1080px;margin:0 auto;padding:22px 16px 40px;color:var(--muted);
   <button class="chip c1" data-f="1">День 1 · Маон</button>
   <button class="chip c2" data-f="2">День 2 · Сьютаделла</button>
   <button class="chip c3" data-f="3">День 3 · Окрестности</button>
+  <button class="chip c4" data-f="4">Шопинг · Маон</button>
+  <button class="chip c5" data-f="5">Шопинг · Сьютаделла</button>
 </div>
 
 <div id="map"></div>
 <div class="legend-note">
-  🔴 День 1 · 🔵 День 2 · 🟢 День 3 — нажмите на метку или карточку.
+  🔴 День 1 · 🔵 День 2 · 🟢 День 3 · 🟣 Шопинг Маон · 🟡 Шопинг Сьютаделла — нажмите на метку или карточку.
   <button id="satBtn" style="display:none;margin-left:8px;border:1px solid var(--line);background:#fff;border-radius:14px;padding:3px 10px;font-size:12px;font-weight:600;cursor:pointer">Спутник</button>
   <span id="baseNote" style="margin-left:6px"></span>
 </div>
@@ -134,6 +142,10 @@ const HEROES = {
      sub:"Все точки в компактном старом городе, между любыми из них ~5 минут пешком."},
   3:{img:FP("G1 Cala Galdana des del mirador des Riu.JPG",1200), title:"День 3 · Окрестности",
      sub:"Точки разбросаны по острову — планируйте маршрут на автомобиле."},
+  4:{img:"", title:"Шопинг · галереи и бутики (Маон)",
+     sub:"Кластер концепт-сторов, галерей и ювелирных в старом Маоне — почти всё в пешей доступности вокруг Plaça Bastió и Carrer Nou."},
+  5:{img:"", title:"Шопинг · галереи и бутики (Сьютаделла)",
+     sub:"Кластер в старом городе Сьютаделлы — рядом с собором, вдоль Carrer des Seminari, Santa Clara и Castell Rupit. Всё в пешей доступности."},
 };
 
 const PLACES = [
@@ -218,9 +230,71 @@ const PLACES = [
   addr:"Cala Mitjana, 07750 Ferreries",lat:39.934369,lon:3.972394,pid:"ChIJgcnArbgdvhIRDdl9DBZuVeM",
   body:"Дикая бухта с кристальной водой и скалами для прыжков, ~25–30 мин пешком от парковки. Инфраструктуры нет — берите воду и еду.",
   photo:FP("Cala Mitjana.jpg",700)},
+
+ {d:4,n:1,name:"Dorian Caffot de Fawes",meta:"Галерея · рейтинг 5.0 · +34 699 56 02 22",
+  addr:"Carrer de Bastió, 17, 07703 Maó",lat:39.8886999,lon:4.2628183,pid:"ChIJD6E7p8mHlRIRJpjSXgD_ybk",
+  body:"Галерея антиквариата и предметов искусства с тщательно подобранной коллекцией старинных вещей. Пн–пт 10:30–14 и 17–20, сб утром."},
+ {d:4,n:2,name:"Vintage Menorca",meta:"Винтаж-бутик · рейтинг 5.0 · +34 639 35 66 60",
+  addr:"Plaça Bastió, 11, 07701 Maó",lat:39.8894068,lon:4.2612788,pid:"ChIJOQ8KPxyHlRIRyV-hjQZIS1A",
+  body:"Винтажный бутик женской одежды с кураторским отбором брендов; дружелюбная хозяйка Эмма. Уникальные вещи отличного качества."},
+ {d:4,n:3,name:"Jade",meta:"Одежда/декор · рейтинг 5.0 · +34 971 35 75 75",
+  addr:"Carrer Nou, 33, 07701 Maó",lat:39.8883714,lon:4.2647122,pid:"ChIJVQ7dD5qHlRIRgHORCCJY7ns",
+  body:"Магазин одежды, бижутерии и предметов для дома на оживлённой Carrer Nou у ратуши и церкви Санта-Мария. Пн–пт с перерывом, сб утром."},
+ {d:4,n:4,name:"Valeria Cayo",meta:"Бутик/галерея (?)",
+  addr:"Маон, старый город (адрес не найден)",lat:39.8888,lon:4.2635,pid:"",
+  body:"Из вашего списка. В открытых картах точное место не подтвердилось.",
+  flag:"Адрес не найден — метка примерная (центр Маона). Проверьте название/адрес; ссылка «Google Maps» откроет поиск."},
+ {d:4,n:5,name:"Encant · Galería de Arte",meta:"Арт-галерея · рейтинг 4.8 · +34 696 56 21 30",
+  addr:"Carrer de la Infanta, 20, 07702 Maó",lat:39.8874468,lon:4.2651738,pid:"ChIJX7479JmHlRIRayRpgwT9DHQ",
+  body:"Уютная арт-галерея; хозяйка Эльвира, локальное искусство и удачные подарки. В центре, у Plaza Reial.",
+  flag:"В вашем списке — «Valeria Encant». Сопоставлено с галереей «Encant» предположительно — проверьте, то ли это место."},
+ {d:4,n:6,name:"Albarrán Bourdais",meta:"Галерея совр. искусства · рейтинг 5.0 · пн закрыто",
+  addr:"Carrer d'en Deià, 51, 07702 Maó",lat:39.8880228,lon:4.2633717,pid:"ChIJ8akMAuGHlRIRftdODc3cbHA",
+  body:"Галерея современного искусства (мадридская галерея с площадкой в Маоне) в эффектно отреставрированном здании старого города, с росписью на стенах."},
+ {d:4,n:7,name:"La Cereria",meta:"Одежда/декор · рейтинг 4.5 · +34 971 35 25 40",
+  addr:"Carrer d'Isabel II, 6, 07701 Maó",lat:39.8900603,lon:4.2638425,pid:"ChIJRWc-gZCHlRIRxMoNTMmrZQQ",
+  body:"Симпатичный магазин одежды, аксессуаров и декора с тёплой атмосферой и разумными ценами."},
+ {d:4,n:8,name:"Hetra",meta:"Одежда · рейтинг 5.0 · открыт ежедневно",
+  addr:"Carrer de Bastió, 13, 07703 Maó",lat:39.8888115,lon:4.2628389,pid:"ChIJ6YLPLgmHlRIRxIZsttdfY5o",
+  body:"Бутик с одеждой преимущественно аргентинских дизайнеров, отличный отбор и внимательный сервис."},
+ {d:4,n:9,name:"Sense Nom (Sense NDM)",meta:"Сумки ручной работы · рейтинг 4.4 · порт",
+  addr:"Moll de Llevant, 327, 07701 Puerto de Mahón",lat:39.8873516,lon:4.2748159,pid:"ChIJPy1zB3aHlRIRkkGKQs4KOng",
+  body:"Плетёные сумки, шляпы и аксессуары ручной работы из натуральных материалов — буйство цвета. На набережной порта, открыто ежедневно."},
+ {d:4,n:10,name:"Tabouret",meta:"Концепт-стор · рейтинг 5.0",
+  addr:"Plaça Bastió, 4, 07703 Maó",lat:39.8892037,lon:4.2623298,pid:"ChIJs4RBnWmHlRIRGPm_Pp6RWf0",
+  body:"Отлично собранный концепт-стор: немного моды, немного декора и просто красивые ремесленные вещи. Кураторский отбор."},
+ {d:4,n:11,name:"Can Sab",meta:"Мода/декор/винтаж · рейтинг 4.9 · +34 629 87 52 61",
+  addr:"Plaça Bastió, 3, 07703 Maó",lat:39.8892472,lon:4.2624319,pid:"ChIJIacXOJWHlRIRIuXOW_zVrTc",
+  body:"Оригинальный микс моды, декора, винтажа и искусства; хозяйка Сабина — ещё и интерьерный дизайнер (попросите показать «секретную галерею» рядом)."},
+ {d:4,n:12,name:"Botanic Menorca",meta:"Украшения ручной работы · рейтинг 5.0",
+  addr:"Mercat des Claustre, local 32-33, 07701 Maó",lat:39.8888042,lon:4.2667418,pid:"ChIJNflRewOHlRIRdhqtriVYqxM",
+  body:"Украшения ручной работы с выразительным дизайном от мастера Алехандры. В галерее Mercat des Claustre."},
+ {d:4,n:13,name:"Joieria Vives",meta:"Ювелирный · рейтинг 4.0 · +34 971 36 28 46",
+  addr:"Carrer Nou, 29, 07701 Maó",lat:39.8884488,lon:4.264721,pid:"ChIJ-SjMD5qHlRIRIqO17xPoIXc",
+  body:"Ювелирный магазин с изысканным вкусом и выразительными дизайнами. В списке — «Joyeria Vives»."},
+
+ {d:5,n:1,name:"Sa Llotja Antiques",meta:"Антиквариат · +34 689 05 20 25",
+  addr:"Carrer de Sant Rafel, 16, 07760 Ciutadella",lat:40.0023019,lon:3.8369175,pid:"ChIJ7_hz-3IFvhIRk8iJr3wz5ss",
+  body:"Магазин антиквариата и старинной мебели в старом городе Сьютаделлы."},
+ {d:5,n:2,name:"Etesian",meta:"Арт-галерея · рейтинг 5.0 · вс закрыто",
+  addr:"Carrer del Castell Rupit, 12, 07760 Ciutadella",lat:40.0009093,lon:3.8393586,pid:"ChIJVcq1q5oFvhIRP-kjcajS3A4",
+  body:"Небольшая, но яркая арт-галерея; хозяйка Беттина, тщательный отбор работ и эффектный подвал-пещера. В вашем списке — «Estesian».",
+  rec:"Отзывы называют её единственной по-настоящему стоящей галереей Сьютаделлы."},
+ {d:5,n:3,name:"Villa Soleil",meta:"Бутик · центр · открыто ежедневно",
+  addr:"Carrer de Ca'l Bisbe, 1, 07760 Ciutadella",lat:40.0017074,lon:3.837271,pid:"ChIJn7j0G5wFvhIRrc5UDM5rEU0",
+  body:"Бутик-пространство в самом центре Сьютаделлы, рядом с собором. Открыто ежедневно (данных немного — уточните профиль на месте)."},
+ {d:5,n:4,name:"The Room",meta:"Одежда/украшения · рейтинг 4.6 · +34 971 48 28 71",
+  addr:"Carrer des Seminari, 34, 07760 Ciutadella",lat:40.0012665,lon:3.8388634,pid:"ChIJU33N6gkEvhIR5DQWuQ5xYo0",
+  body:"Магазин украшений, необычных сандалий и минималистичной женской одежды — хорошее место за со вкусом подобранным подарком. У входа приметная скамейка."},
+ {d:5,n:5,name:"Casa Pueblo Menorca",meta:"Мода/пляж · рейтинг 4.9 · +34 971 10 26 55",
+  addr:"Carrer de Santa Clara, 7, 07760 Ciutadella",lat:40.0023974,lon:3.8384236,pid:"ChIJNdbzQBoFvhIREy8IR8MAbzk",
+  body:"Испанские бренды: качественные купальники, полотенца, сумки и аксессуары; обаятельный интерьер и хозяин Гонсало."},
+ {d:5,n:6,name:"Carmen Cocoon",meta:"Украшения ручной работы · рейтинг 4.6 · +34 693 52 97 60",
+  addr:"Carrer des Seminari, 32, 07760 Ciutadella",lat:40.001297,lon:3.8388104,pid:"ChIJk58fi98FvhIR2JhvA3jktcs",
+  body:"Украшения ручной работы в рустикально-элегантном стиле; ювелир Алехандро делает изделия на заказ за пару дней."},
 ];
 
-const DAYCOL = {1:"#c65b3c",2:"#1b6c9c",3:"#6e8b3d"};
+const DAYCOL = {1:"#c65b3c",2:"#1b6c9c",3:"#6e8b3d",4:"#7e57a3",5:"#c98a2b"};
 const gmaps = p => p.pid
   ? `https://www.google.com/maps/search/?api=1&query=${p.lat}%2C${p.lon}&query_place_id=${p.pid}`
   : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.name+' Menorca')}`;
@@ -286,14 +360,16 @@ map.fitBounds(bounds,{padding:[30,30]});
 
 // ---- Cards ----
 const content = document.getElementById('content');
-[1,2,3].forEach(d=>{
+[1,2,3,4,5].forEach(d=>{
   const h = HEROES[d];
   const sec = document.createElement('section');
   sec.className='day'; sec.dataset.day=d; sec.id='day'+d;
+  const tagLabel = d>=4 ? "Шопинг" : ("День "+d);
+  const heroImg = h.img ? `<img src="${h.img}" alt="" onerror="this.style.display='none'">` : "";
   sec.innerHTML = `
     <div class="hero b${d}">
-      <img src="${h.img}" alt="" onerror="this.style.display='none'">
-      <span class="tag">День ${d}</span>
+      ${heroImg}
+      <span class="tag">${tagLabel}</span>
       <div class="cap"><h2>${h.title}</h2><p>${h.sub}</p></div>
     </div>
     <div class="grid" id="grid${d}"></div>`;
